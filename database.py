@@ -134,3 +134,33 @@ class Vectorizer:
             return 1
         else:
             return 0
+        
+    def save_user_data(self, data):
+        """
+        Simple method to save the consequent user data's to local.
+        Data is vectorized and stored. 
+        """
+        client = chromadb.PersistentClient(path=f"{self.working_dir}/{self.folder}")
+        
+        collection = client.get_or_create_collection(name="users")
+        # date_, user_info = data
+        
+        collection.add(
+            documents=[f"User Profile for {self.user_id}:\n {data}",],
+            # metadatas=[
+            #     {
+            #         "date": date_
+            #      },
+            # ],
+            ids=[str(self.user_id),]
+        )
+        print('success!!')
+        return 0
+    
+    def get_user_data(self):
+        client = chromadb.PersistentClient(path=f"{self.working_dir}/{self.folder}")
+        collection = client.get_or_create_collection(name="users")
+        results = collection.get(
+            ids=[str(self.user_id)]
+            )
+        print(results)

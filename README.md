@@ -32,7 +32,11 @@ Before you begin, ensure you have the following prerequisites:
 - [Telegram Bot Token](https://www.freecodecamp.org/news/how-to-create-a-telegram-bot-using-python/)
 - [OpenAI Keys](https://www.howtogeek.com/885918/how-to-get-an-openai-api-key/)
 - [Apify Keys](https://docs.apify.com/platform/integrations/api)
-
+- Teserract OCR
+  ```shell
+    sudo apt-get install tesseract-ocr
+    sudo apt-get install libtesseract-dev
+  ```
 
 ### Installation
 1. Clone this repository:
@@ -57,6 +61,8 @@ Make sure to set the following environment variables in your `.env` file:
     cd script-warden
     mkdir admins
     mkdir doctors
+    mkdir users
+    mkdir prescriptions
     python bot.py
     ```
 

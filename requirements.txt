@@ -64,6 +64,7 @@ pydantic==2.4.2
 pydantic_core==2.10.1
 PyPika==0.48.9
 pyTelegramBotAPI==4.14.0
+pytesseract==0.3.10
 python-dateutil==2.8.2
 python-decouple==3.8
 python-dotenv==1.0.0
