@@ -55,13 +55,15 @@ Make sure to set the following environment variables in your `.env` file:
 1. Start Bot:
     ```shell
     cd script-warden
+    mkdir admins
+    mkdir doctors
     python bot.py
     ```
 
 ### Commands
 - `/start`: Get started with Script-Warden and explore its capabilities.
 - `/chat`: Engage in conversations with the chatbot.
-- `/set_admin`: Begin the process of setting up administrator privileges for doctor approvals.
+- `/set_admin`: Begin the process of setting up administrator privileges for doctor approvals. **Do this first**
 - `/doctor`: Start onboarding doctors seamlessly.
 - `/pharmacist`: Facilitate the onboarding of pharmacists within your healthcare system.
 - `/user`: Enable patients to register and access the benefits of Script-Warden.

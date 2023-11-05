@@ -74,6 +74,27 @@ class Vectorizer:
         print('success!!')
         return 0
     
+    def save_doctor(self, date_):
+        """
+        Simple method to save the consequent doctors to local.
+        Data is vectorized and stored. 
+        """
+        client = chromadb.PersistentClient(path=f"{self.working_dir}/{self.folder}")
+        
+        collection = client.get_or_create_collection(name="doctors")
+        
+        collection.add(
+            documents=[f"Veirfified Doctor {self.user_id}.",],
+            metadatas=[
+                {
+                    "date": date_
+                 },
+            ],
+            ids=[str(self.user_id),]
+        )
+        print('success!!')
+        return 0
+    
     def get_admin(self):
         
         client = chromadb.PersistentClient(path=f"{self.working_dir}/{self.folder}")
@@ -92,3 +113,24 @@ class Vectorizer:
             print('Admin already exists')
             return 2, results['ids'][0][0] # Return the first admin
         
+    def get_admins(self):
+        client = chromadb.PersistentClient(path=f"{self.working_dir}/{self.folder}")
+        collection = client.get_or_create_collection(name="admins")
+        results = collection.query(
+            query_texts=[f"Veirfified admin {self.user_id}."],
+            n_results=5
+            )
+        print(results)
+        
+    def is_user_admin(self):
+        client = chromadb.PersistentClient(path=f"{self.working_dir}/{self.folder}")
+        collection = client.get_or_create_collection(name="admins")
+        results = collection.get(
+            ids=[str(self.user_id),]
+            )
+        empty = {'ids': [[]], 'distances': [[]], 'metadatas': [[]], 'embeddings': None, 'documents': [[]]}
+        
+        if results != empty:
+            return 1
+        else:
+            return 0

@@ -5,6 +5,7 @@ import asyncio
 from database import Vectorizer
 import utcnow
 from telebot import types
+from messages import intro_doctor
 
 BOT_TOKEN = config('BOT_TOKEN')
 
@@ -48,52 +49,63 @@ async def set_admin(message):
             
             if status_ == 0:
                 # If user is not an admin yet
-                kyc_request = types.KeyboardButton('Share KYC Data', request_contact=True)
+                process_kyc_admin = types.KeyboardButton('Share KYC Data', request_contact=True)
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                markup.add(kyc_request)
+                markup.add(process_kyc_admin)
                 await bot.send_message(message.chat.id, "To start KYC, please share your KYC data with us.", reply_markup=markup)
             
             else:
                 await bot.send_message(message.chat.id, text="You're already an admin.", parse_mode="Markdown")
                 
-                # print(f"Status: {status_}, Data: {data_}")
-            
-            
-            
-
 @bot.message_handler(content_types=['contact'])
 async def process_kyc(message):
-    
+
     user_id = message.from_user.id
-    
-    vecotrizer = Vectorizer(user_id=user_id, folder='admins')
-    check_, result = vecotrizer.get_first_admin()
-    
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
     phone_number = message.contact.phone_number
-    # Process the received KYC data (phone number)
-    # print(f"User ID: {user_id}, Phone Number: {phone_number}")
-    response_message = f"Thank you for sharing your KYC data. Your phone number ({phone_number}) has been recorded."
-    # Reset Markdown formatting using backticks
-    await bot.send_message(user_id, response_message, parse_mode="Markdown")
-    
+
+    vecotrizer = Vectorizer(user_id=user_id, folder='admins')
+    result = vecotrizer.is_user_admin() #check if user is admin
     msg = f"""
         Hi, {first_name} {last_name}, with Id of {user_id} is requesting to become an admin.\n\n/Approve{user_id} or /Deny{user_id}. Call {phone_number} to verify.
     """
-    await bot.send_message(chat_id=result, text=msg, parse_mode="Markdown")
+    doctor_is_admin = ('doctor' in message.reply_to_message.text)
+    if result == 0:
+        # Handle KYC for doctors
+        # TODO: Handle KYC for pharmacists.
+        response_message = f"Thank you for sharing your KYC data. Expect a call or text on ({phone_number}) from an admin."
+        msg = f"Hi, {first_name} {last_name}, with Id of {user_id} is requesting to become a doctor. Call {phone_number} to verify. /ApproveDoc{user_id} or /DenyDoc{user_id}."
+    else:
+        # Handle KYC if doctors are admin.
+        if doctor_is_admin:
+            status_, admin_id_ = vecotrizer.get_first_admin()
+            
+            response_message = f"Thank you for sharing your KYC data. Expect a call or text on ({phone_number}) from an admin."
+            msg = f"Hi, {first_name} {last_name}, with Id of {user_id} is requesting to become a doctor. Call {phone_number} to verify. /ApproveDoc{user_id} or /DenyDoc{user_id}."
 
-@bot.message_handler(regexp=r'/Approve\d+')
+        else:
+            # Handle KYC for admins
+            response_message = f"Thank you for sharing your KYC data. Your phone number ({phone_number}) has been recorded."
+            msg = f"Hi, {first_name} {last_name}, with Id of {user_id} is requesting to become an admin. Call {phone_number} to verify. Then /ApproveAdmin{user_id} or /DenyAdmin{user_id}."
+
+            status_, admin_id_ = vecotrizer.get_first_admin()
+
+    await bot.send_message(user_id, response_message, parse_mode="Markdown")
+    await bot.send_message(chat_id=admin_id_, text=msg, parse_mode="Markdown")
+
+@bot.message_handler(regexp=r'/ApproveAdmin\d+')
 async def approve_admin_request(message):
     # Extract the ID from the message
     try:
-        user_id_to_approve = int(message.text.split('/Approve')[1])
+        user_id_to_approve = int(message.text.split('/ApproveAdmin')[1])
         approval_date = utcnow.get()
+        
         # Process the approval for the user with the ID user_id_to_approve
         vecotrizer = Vectorizer(user_id=user_id_to_approve, folder='admins')
         vecotrizer.save_admins(approval_date)
-        # You can perform any necessary actions here
-        # For example, you can update the user's role in your database or system
+        
+        # Inform the user that their request has been accepted
 
         await bot.send_message(message.chat.id, f"Approval granted for user with ID {user_id_to_approve}")
         await bot.send_message(chat_id=user_id_to_approve, text="Welcome to script-warden, you're now an admin", parse_mode="Markdown")
@@ -103,15 +115,13 @@ async def approve_admin_request(message):
     except (ValueError, IndexError):
         await bot.send_message(message.chat.id, "Invalid /Approve command format. Use /Approve<user_id>.")
 
-@bot.message_handler(regexp=r'/Deny\d+')
+@bot.message_handler(regexp=r'/DenyAdmin\d+')
 async def deny_admin_request(message):
     # Extract the ID from the message
     try:
-        user_id_to_deny = int(message.text.split('/Deny')[1])
+        user_id_to_deny = int(message.text.split('/DenyAdmin')[1])
         
-        # Process the denial for the user with the ID user_id_to_deny
-        # You can perform any necessary actions here
-        # For example, you can inform the user that their request has been denied
+        # Inform the user that their request has been denied
 
         await bot.send_message(message.chat.id, f"Request denied for user with ID {user_id_to_deny}")
         await bot.send_message(user_id_to_deny, f"Request denied!")
@@ -119,16 +129,53 @@ async def deny_admin_request(message):
     except (ValueError, IndexError):
         await bot.send_message(message.chat.id, "Invalid /Deny command format. Use /Deny<user_id>.")
 
+@bot.message_handler(regexp=r'/ApproveDoc\d+')
+async def approve_admin_request(message):
+    # Extract the ID from the message
+    try:
+        user_id_to_approve = int(message.text.split('/ApproveDoc')[1])
+        approval_date = utcnow.get()
+        # Process the approval for the user with the ID user_id_to_approve
+        vecotrizer = Vectorizer(user_id=user_id_to_approve, folder='doctors')
+        vecotrizer.save_doctor(approval_date)
+       
+        # Inform the user that their request has been accepted
+
+        await bot.send_message(message.chat.id, f"Approval granted for user with ID {user_id_to_approve}")
+        await bot.send_message(chat_id=user_id_to_approve, text="Welcome to script-warden, Doctor", parse_mode="Markdown")
+        # TODO: add more functions to admins.
+        # TODO: Send message explaining admin functions.
     
+    except (ValueError, IndexError):
+        await bot.send_message(message.chat.id, "Invalid /Approve command format. Use /Approve<user_id>.")
+
+@bot.message_handler(regexp=r'/DenyDoc\d+')
+async def deny_admin_request(message):
+    # Extract the ID from the message
+    try:
+        user_id_to_deny = int(message.text.split('/DenyDoc')[1])
+        
+        # Inform the user that their request has been denied
+
+        await bot.send_message(message.chat.id, f"Request denied for user with ID {user_id_to_deny}")
+        await bot.send_message(user_id_to_deny, f"Request denied!")
+    
+    except (ValueError, IndexError):
+        await bot.send_message(message.chat.id, "Invalid /Deny command format. Use /Deny<user_id>.")
+    
+
 @bot.message_handler(commands=['doctor'])
 async def doctor(message):
-    bot.register_message_handler(
-        await bot.send_message(
-            message.chat.id,
-            f"Hi {message.chat.username}, Nice to have you here. Can I get your ID?",
-            ),
-        register_doctor
+    # f"Hi {message.chat.username}, Nice to have you here. Can I get your ID?",
+    await bot.send_message(
+        message.chat.id,
+        intro_doctor,
     )
+    process_kyc_doctor = types.KeyboardButton('Verify Identity', request_contact=True)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(process_kyc_doctor)
+    await bot.send_message(message.chat.id, "To complete your registration as a doctor and verify your identity, please click the 'Verify Identity' button to share your KYC data with us.", reply_markup=markup)
+
 
 async def register_doctor(message):
     print(message)
