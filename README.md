@@ -30,8 +30,8 @@ Script-Warden is your guardian in the world of medication safety. This innovativ
 Before you begin, ensure you have the following prerequisites:
 - [Python](https://www.python.org/) 3.x
 - [Telegram Bot Token](https://www.freecodecamp.org/news/how-to-create-a-telegram-bot-using-python/)
-- [OpenAI Keys] (https://www.howtogeek.com/885918/how-to-get-an-openai-api-key/)
-- [Apify Keys] (https://docs.apify.com/platform/integrations/api)
+- [OpenAI Keys](https://www.howtogeek.com/885918/how-to-get-an-openai-api-key/)
+- [Apify Keys](https://docs.apify.com/platform/integrations/api)
 
 
 ### Installation
@@ -90,3 +90,6 @@ Check the site we get out our real time data [here](SITES.md)
 
 ## For changes and Updates
 Check out our updates [here](UPDATES.md)
+
+## Our Sites
+- [Our Site](https://script-warden.framer.ai/)
