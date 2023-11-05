@@ -130,7 +130,7 @@ async def deny_admin_request(message):
         await bot.send_message(message.chat.id, "Invalid /Deny command format. Use /Deny<user_id>.")
 
 @bot.message_handler(regexp=r'/ApproveDoc\d+')
-async def approve_admin_request(message):
+async def approve_doc_request(message):
     # Extract the ID from the message
     try:
         user_id_to_approve = int(message.text.split('/ApproveDoc')[1])
@@ -150,7 +150,7 @@ async def approve_admin_request(message):
         await bot.send_message(message.chat.id, "Invalid /Approve command format. Use /Approve<user_id>.")
 
 @bot.message_handler(regexp=r'/DenyDoc\d+')
-async def deny_admin_request(message):
+async def deny_doc_request(message):
     # Extract the ID from the message
     try:
         user_id_to_deny = int(message.text.split('/DenyDoc')[1])
