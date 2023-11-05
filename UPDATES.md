@@ -14,3 +14,12 @@ Stay tuned for more exciting updates in the coming hours, as we continue to move
 
 - `Store User Data` (/store_user_data): To maintain data integrity and enhance patient care, we are developing a user-friendly interface that allows doctors to input patient data with lightning speed. Whether through interactive forms or messages, this feature will ensure that patient information is recorded accurately and securely. This is a critical step in providing comprehensive and precise healthcare services.
 
+
+## Changelog - November 5, 2023, 17:56 GMT+1
+🚀 **New Features:**
+
+- 📋 `/create_prescription`: We've been hard at work exploring innovative prescription creation methods, including image-based and digital alternatives, all supported by Optical Character Recognition (OCR) and secure data storage. Our commitment to providing you with the best prescription experience remains unwavering.
+
+- 🏥 `/store_user_data`: To ensure data integrity, we've introduced a feature that allows healthcare professionals to swiftly input patient data via interactive forms or messages. This ensures the accuracy and reliability of patient information, a cornerstone of our mission.
+
+- 🔍 `/verify_prescription`: While we're excited about this feature, we want to be transparent about our progress. We're still diligently working on incorporating advanced Natural Language Processing (NLP) algorithms for prescription verification. This is a crucial step in enhancing accuracy and patient safety, and we're committed to getting it right.
